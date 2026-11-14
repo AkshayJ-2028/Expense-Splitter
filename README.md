@@ -49,7 +49,3 @@ It uses a local H2 database file by default.
 ## Deployment
 Docker image built from the `Dockerfile`, deployed on Render. Database on Neon (PostgreSQL). Secrets are kept in environment variables, never in the repo.
 
-## Screenshots
-![Groups](docs/groups.png)
-![AI expense entry](docs/ai-entry.png)
-![Balances](docs/balances.png)
