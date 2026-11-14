@@ -35,3 +35,21 @@ Java 25, Spring Boot 4, Spring Security (JWT), Spring Data JPA, PostgreSQL (Neon
 ## Run locally
 1. Install Java 25.
 2. Clone the repo and run:
+
+It uses a local H2 database file by default.
+3. Optional, for the AI feature: set `GEMINI_API_KEY` first (PowerShell: `$env:GEMINI_API_KEY = "your-key"`).
+
+## Environment variables (production)
+| Name | Purpose |
+|---|---|
+| `DB_URL`, `DB_USER`, `DB_PASSWORD` | PostgreSQL connection (Neon) |
+| `JWT_SECRET` | Secret used to sign login tokens |
+| `GEMINI_API_KEY` | Key for the AI feature |
+
+## Deployment
+Docker image built from the `Dockerfile`, deployed on Render. Database on Neon (PostgreSQL). Secrets are kept in environment variables, never in the repo.
+
+## Screenshots
+![Groups](docs/groups.png)
+![AI expense entry](docs/ai-entry.png)
+![Balances](docs/balances.png)
