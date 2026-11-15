@@ -1,51 +1,69 @@
-# Expense Splitter (Backend)
+# Expense Splitter (Frontend)
 
-A group expense-sharing API, like Splitwise. Friends create groups, add shared expenses, see who owes whom, and settle up. An AI feature turns a sentence such as "Dinner 1200 with Rahul" into a draft expense.
+React frontend for **Expense Splitter**, a Splitwise-style app for sharing group expenses. Create a group, add expenses, see who owes whom, and settle up with the fewest payments. An AI sentence box fills in the expense form for you.
 
 **Live app:** https://expense-splitter-ui-three.vercel.app
-**Frontend repo:** https://github.com/AkshayJ-2028/expense-splitter-ui
+**Backend repo:** https://github.com/AkshayJ-2028/Expense-Splitter
 
-> The backend runs on a free Render plan. It sleeps when idle, so the first request can take up to a minute.
+> The backend runs on a free Render plan and sleeps when idle. The first request after a quiet period can take up to a minute, and the login button shows "Please wait, server is starting..." while it wakes up.
 
 ## Features
-- Register and log in with JWT authentication (BCrypt password hashing)
-- Create groups and add members by email (only the group creator can add or remove members)
-- Add expenses with three split types: **equal**, **percent** and **exact amount**
-- Balances per member and a **settle-up plan with the fewest payments** (greedy algorithm)
-- Record payments, and balances update automatically
-- **AI expense entry:** type a sentence, get a draft expense (Gemini API)
-  - The AI never saves anything: the user reviews the draft first
-  - AI output is validated on the server, requests are rate limited, and a backup model is used if the first one is busy
-- Money is handled with `BigDecimal` (never floating point)
+
+- **Register and log in** with JWT authentication
+- **Groups and members:** create groups and add members by email
+- **Expenses with three split types:** equal, percent or exact amount, with a choice of who shares each expense
+- **AI expense entry:** type a sentence like *"Dinner 1200 paid by me, split with Rahul"* and the form fills itself. You always review the draft before saving.
+- **Balances and settle up:** see each member's balance and the shortest list of payments that clears all debts, and record payments as they happen
+- **Cold-start friendly:** the app wakes the sleeping backend as soon as the login page opens
 
 ## Tech stack
-Java 25, Spring Boot 4, Spring Security (JWT), Spring Data JPA, PostgreSQL (Neon), H2 (local), Maven, Docker, Render
 
-## API overview
-| Area | Endpoints |
-|---|---|
-| Auth | `POST /api/auth/register`, `POST /api/auth/login` |
-| Groups | `POST /api/groups`, `GET /api/groups`, `GET /api/groups/{id}` |
-| Members | `POST /api/groups/{id}/members`, `DELETE /api/groups/{id}/members/{userId}` |
-| Expenses | `POST /api/groups/{id}/expenses` |
-| Balances | `GET /api/groups/{id}/balances` |
-| Settle up | `POST /api/groups/{id}/settlements`, `GET /api/groups/{id}/settlements` |
-| AI | `POST /api/groups/{id}/ai/parse-expense` |
+React, Vite, React Router, Axios. Deployed on Vercel.
 
 ## Run locally
-1. Install Java 25.
-2. Clone the repo and run:
 
-It uses a local H2 database file by default.
-3. Optional, for the AI feature: set `GEMINI_API_KEY` first (PowerShell: `$env:GEMINI_API_KEY = "your-key"`).
+You need Node.js 18 or newer and the [backend](https://github.com/AkshayJ-2028/Expense-Splitter) running on port 8080.
 
-## Environment variables (production)
-| Name | Purpose |
-|---|---|
-| `DB_URL`, `DB_USER`, `DB_PASSWORD` | PostgreSQL connection (Neon) |
-| `JWT_SECRET` | Secret used to sign login tokens |
-| `GEMINI_API_KEY` | Key for the AI feature |
+```
+git clone https://github.com/AkshayJ-2028/expense-splitter-ui.git
+cd expense-splitter-ui
+npm install
+npm run dev
+```
+
+The app opens at http://localhost:5173 and talks to `http://localhost:8080` by default.
+
+To use a different backend, create a `.env` file in the project root:
+
+```
+VITE_API_URL=https://your-backend.onrender.com
+```
+
+Use the address without a trailing slash. Restart `npm run dev` after changing it.
+
+## Build
+
+```
+npm run build
+```
+
+The production files are created in `dist/`.
 
 ## Deployment
-Docker image built from the `Dockerfile`, deployed on Render. Database on Neon (PostgreSQL). Secrets are kept in environment variables, never in the repo.
 
+Deployed on Vercel from the `main` branch. Two settings matter:
+
+- **`VITE_API_URL`** (environment variable): the address of the deployed backend. It is read at build time, so redeploy after changing it.
+- **`vercel.json`**: rewrites every address to `index.html`, so refreshing a page such as `/login` works instead of showing a 404.
+
+## How the app talks to the backend
+
+All requests go through one Axios instance (`src/api.js`) that:
+
+- sends requests to `VITE_API_URL` (or `http://localhost:8080`)
+- attaches the saved JWT token as a `Bearer` header
+- allows up to 90 seconds, so a sleeping backend has time to wake up
+
+## Author
+
+Akshay Kumar Jha · https://github.com/AkshayJ-2028
