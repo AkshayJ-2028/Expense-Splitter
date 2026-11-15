@@ -10,7 +10,8 @@ A group expense-sharing REST API, like Splitwise. Friends create groups, add sha
 ## Features
 
 - **Authentication:** register and log in with JWT, passwords hashed with BCrypt
-- **Groups:** create groups and add members by email. Only the group creator can add or remove members.
+- **Groups:** create groups and add members by email. Only the group creator can add or remove members, or delete the group.
+- **Delete a group:** removes the group together with its expenses, splits, payments and members in a single transaction, so no orphaned data is left behind
 - **Three split types:** equal, percent and exact amount
 - **Balances and settle-up plan:** a balance per member, plus a plan that clears every debt with the **fewest payments** (greedy algorithm)
 - **Payments:** record a payment and the balances update automatically
@@ -31,11 +32,11 @@ All endpoints except `/api/auth/*` need the header `Authorization: Bearer <token
 | Area | Endpoints |
 |---|---|
 | Auth | `POST /api/auth/register`, `POST /api/auth/login` |
-| Groups | `POST /api/groups`, `GET /api/groups`, `GET /api/groups/{id}` |
+| Groups | `POST /api/groups`, `GET /api/groups`, `GET /api/groups/{id}`, `DELETE /api/groups/{id}` |
 | Members | `POST /api/groups/{id}/members`, `DELETE /api/groups/{id}/members/{userId}` |
-| Expenses | `POST /api/groups/{id}/expenses` |
-| Balances | `GET /api/groups/{id}/balances` |
-| Settle up | `POST /api/groups/{id}/settlements`, `GET /api/groups/{id}/settlements` |
+| Expenses | `POST /api/groups/{id}/expenses`, `GET /api/groups/{id}/expenses`, `DELETE /api/groups/{id}/expenses/{expenseId}` |
+| Balances | `GET /api/groups/{id}/balances` (member balances and the settle-up plan) |
+| Payments | `POST /api/groups/{id}/payments` |
 | AI | `POST /api/groups/{id}/ai/parse-expense` |
 
 ## How the AI feature works
